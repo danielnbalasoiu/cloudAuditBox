@@ -31,9 +31,9 @@ build-auditbox:
 
 ## 🛠️ Pull latest code from GitHub and build pmapper container
 build-pmapper:
-	@git submodule update
+	@git submodule add --force --name pmapper -- https://github.com/nccgroup/PMapper arsenal/pmapper
 	@pushd arsenal/pmapper && \
-		docker build --no-cache --progress=plain -t pmapper . 2>&1 | tee ../../logs/dockerbuild-pmapper.log
+		time docker build --no-cache --progress=plain -t pmapper . 2>&1 | tee ../../logs/dockerbuild-pmapper.log
 
 ## 🐳 Start auditbox & pmapper containers
 run:
@@ -41,22 +41,22 @@ run:
 	@docker run --env-file=./env.list --rm -d --name pmapper pmapper bash -c "sleep infinity & wait"
 
 cloudsplaining: ## 🔍 Audit AWS account with CloudSplaining
-	@echo -e "\n\n==> CloudSplaining scan has started."
+	@echo "\n\n==> CloudSplaining scan has started."
 	@docker exec -it auditbox bash -c "mkdir -p cloudsplaining && \
 		pipenv run cloudsplaining download && \
 		pipenv run cloudsplaining scan --input-file /home/auditor/default.json --output cloudsplaining"
 
 pmapper: ## 🔍 Evaluate IAM permissions in AWS
-	@echo -e "\n\n==> Evaluating IAM permissions iwth PMapper"
+	@echo "\n\n==> Evaluating IAM permissions with PMapper"
 	@docker exec -it pmapper bash -c "pmapper graph create"
 	@docker exec -it pmapper bash -c "pmapper visualize --only-privesc --filetype png"
 
 prowler: ## 🔍 Audit AWS account with Prowler
-	@echo -e "\n\n==> Prowler scan has started."
+	@echo "\n\n==> Prowler scan has started."
 	@docker exec -it auditbox bash -c "pipenv run prowler aws --no-banner --output-modes {csv,json,json-asff,html} --compliance cis_1.5_aws"
 
 scoutsuite: ## 🔍 Audit AWS account with ScoutSuite
-	@echo -e "\n\n==> ScoutSuite scan has started."
+	@echo "\n\n==> ScoutSuite scan has started."
 	@docker exec -it auditbox bash -c "pipenv run scout aws --report-name scoutsuite --result-format json"
 
 gather-results: ## 💾 Copy all scan results locally in auditbox-results directory
