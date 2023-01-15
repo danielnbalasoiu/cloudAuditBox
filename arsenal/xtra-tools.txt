@@ -2,8 +2,6 @@ amass
 curl
 git
 jq
-libedit-dev
-libbz2-dev
 mc
 nikto
 pip
