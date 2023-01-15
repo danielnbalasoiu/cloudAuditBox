@@ -1,0 +1,9 @@
+.idea
+.fleet
+.DS_Store
+._.DS_Store
+arsenal/pmapper
+auditbox-results
+env.list
+logs
+bkp
