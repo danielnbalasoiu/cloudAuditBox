@@ -3,9 +3,6 @@ FROM kalilinux/kali-rolling
 ENV HOSTNAME=${DOCKER_HOSTNAME:-auditbox}
 ENV TZ=Europe/Bucharest
 
-# We are running everything in a single RUN
-# to avoid creating multiple layers which increase the size of the final image
-
 COPY ./arsenal/xtra-tools.txt /tmp/
 
 # If you want to install other tools, add them in the tools/xtra-tools.txt file
