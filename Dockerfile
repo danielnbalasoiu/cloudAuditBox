@@ -10,7 +10,7 @@ RUN useradd -ms /bin/bash auditor													&& \
 		apt update																						&& \
 		apt upgrade -y																				&& \
 		apt autoremove																				&& \
-		apt install -y $(cat /tmp/xtra-tools.txt | xargs) 			&& \
+		apt install -y $(cat /tmp/xtra-tools.txt | xargs)			&& \
 		pip install pipenv
 
 WORKDIR /home/auditor
