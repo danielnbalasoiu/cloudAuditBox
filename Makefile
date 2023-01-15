@@ -47,7 +47,7 @@ cloudsplaining: ## 🔍 Audit AWS account with CloudSplaining
 		pipenv run cloudsplaining scan --input-file /home/auditor/default.json --output cloudsplaining"
 
 pmapper: ## 🔍 Evaluate IAM permissions in AWS
-	@echo "\n\n==> Evaluating IAM permissions iwth PMapper"
+	@echo "\n\n==> Evaluating IAM permissions with PMapper"
 	@docker exec -it pmapper bash -c "pmapper graph create"
 	@docker exec -it pmapper bash -c "pmapper visualize --only-privesc --filetype png"
 
