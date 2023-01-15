@@ -11,18 +11,26 @@ Automating the AWS auditing process.
 
 ## Usage
 
-1. Copy or rename `env.list.example` to `env.list`.
+1. Clone the repository.
+
+```shell
+git clone git@github.com:danielnbalasoiu/auditBox.git && cd auditBox
+```
+
+2. Copy or rename `env.list.example` to `env.list`.
 
 ```shell
 cp env.list.example env.list
 ```
 
-2. Replace `REDACTED` values with your own.
-3. Run the audit
+3. Replace `REDACTED` values with your own.
+4. Run the audit
 
 ```shell
 make all
 ```
+
+5. Check audit results stored inside `auditbox-results` directory.
 
 ### Help
 
