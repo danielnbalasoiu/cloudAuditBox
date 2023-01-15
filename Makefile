@@ -4,22 +4,25 @@ default: help
 
 all: ## 🚀 Build dependencies and start security audits 🔒🔍
 	@make clean
-	@make build-n-run
-	@make audit
+	@time make build-n-run
+	@echo \n\n ==> 🚀 Starting security audits 🔒🔍
+	@time make audit
 
 audit: ## 🛡️ Audit AWS account with all the tools (Prowler, ScoutSuite, CloudSplaining, PMapper)
-	@make prowler
-	@make scoutsuite
-	@make cloudsplaining
-	@make pmapper
+	@time make prowler
+	@time make scoutsuite
+	@time make cloudsplaining
+	@time make pmapper
 	@make gather-results
 
 install-deps:	## ❌ (out of scope) Install git and docker if you want to continue
 	@echo "git & docker installation are out of scope. You should install them if you want to continue"
 
 build-n-run: ## 🛠️ 🐳 Build and start the containers
-	@make build-auditbox
-	@make build-pmapper
+	@echo \n\n==> 🛠️ Building auditBox container..."
+	@time make build-auditbox
+	@echo \n\n==> 🛠️ Building pmapper container..."
+	@time make build-pmapper
 	@make run
 
 ## 🛠️ Build auditbox container using Kali Linux rolling as base image
@@ -41,22 +44,22 @@ run:
 	@docker run --env-file=./env.list --rm -d --name pmapper pmapper bash -c "sleep infinity & wait"
 
 cloudsplaining: ## 🔍 Audit AWS account with CloudSplaining
-	@echo "\n\n==> CloudSplaining scan has started."
+	@echo "\n\n==> 🔍 CloudSplaining scan has started."
 	@docker exec -it auditbox bash -c "mkdir -p cloudsplaining && \
 		pipenv run cloudsplaining download && \
 		pipenv run cloudsplaining scan --input-file /home/auditor/default.json --output cloudsplaining"
 
 pmapper: ## 🔍 Evaluate IAM permissions in AWS
-	@echo "\n\n==> Evaluating IAM permissions with PMapper"
+	@echo "\n\n==> 🔍 Evaluating IAM permissions with PMapper"
 	@docker exec -it pmapper bash -c "pmapper graph create"
 	@docker exec -it pmapper bash -c "pmapper visualize --only-privesc --filetype png"
 
 prowler: ## 🔍 Audit AWS account with Prowler
-	@echo "\n\n==> Prowler scan has started."
+	@echo "\n\n==> 🔍 Prowler scan has started."
 	@docker exec -it auditbox bash -c "pipenv run prowler aws --no-banner --output-modes {csv,json,json-asff,html} --compliance cis_1.5_aws"
 
 scoutsuite: ## 🔍 Audit AWS account with ScoutSuite
-	@echo "\n\n==> ScoutSuite scan has started."
+	@echo "\n\n==> 🔍 ScoutSuite scan has started."
 	@docker exec -it auditbox bash -c "pipenv run scout aws --report-name scoutsuite --result-format json"
 
 gather-results: ## 💾 Copy all scan results locally in auditbox-results directory
