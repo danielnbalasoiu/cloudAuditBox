@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-#set -eu
-set -x
-
 export USER=auditor
 
 echo "Installing tools..."
@@ -12,13 +9,14 @@ function pythonTools() {
 	pipenv install --ignore-pipfile --requirements /tmp/python-tools.txt
 }
 
+# Nothing here yet
 function customTools() {
 mkdir -p ~/tools && cd ~/tools
-# TODO: check if directories are already there. Just pull latest code
 }
 
 #------#
 # Main #
 #------#
 pythonTools
-#customTools
+customTools
+
