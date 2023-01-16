@@ -5,9 +5,11 @@ Automating the AWS auditing process.
 ## Tools
 
 - [x] [CloudSplaining](https://github.com/salesforce/cloudsplaining)
+- [x] [CloudSploit](https://github.com/aquasecurity/cloudsploit)
 - [x] [PMapper](https://github.com/nccgroup/PMapper)
 - [x] [Prowler](https://github.com/prowler-cloud/prowler)
 - [x] [ScoutSuite](https://github.com/nccgroup/ScoutSuite)
+
 
 ## Usage
 

@@ -1,0 +1,16 @@
+--- Dockerfile	2023-01-16 21:21:44
++++ Dockerfile.fixed	2023-01-16 21:21:28
+@@ -12,9 +12,10 @@
+ COPY . /var/scan/cloudsploit/
+
+ # Install cloudsploit/scan into the container using npm from NPM
+-RUN cd /var/scan \
+-&& npm init --yes \
+-&& npm install ${PACKAGENAME}
++RUN cd /var/scan/cloudsploit       && \
++ npm init --yes                    && \
++ npm install ${PACKAGENAME}        && \
++ npm link
+
+ # Setup the container's path so that you can run cloudsploit directly
+ # in case someone wants to customize it when running the container.

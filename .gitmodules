@@ -1,3 +1,6 @@
 [submodule "pmapper"]
 	path = arsenal/pmapper
 	url = https://github.com/nccgroup/PMapper
+[submodule "cloudsploit"]
+	path = arsenal/cloudsploit
+	url = https://github.com/aquasecurity/cloudsploit
