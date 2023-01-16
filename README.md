@@ -43,6 +43,7 @@ audit                          🛡️ Audit AWS account with all the tools (Pro
 build-n-run                    🛠️ 🐳 Build and start the containers
 clean                          🧹 Delete scan results, stop and delete containers
 cloudsplaining                 🔍 Audit AWS account with CloudSplaining
+cloudsploit                    🔍 Audit AWS account with CloudSploit
 gather-results                 💾 Copy all scan results locally in auditbox-results directory
 help                           ❔ Display this help screen
 install-deps                   ❌ (out of scope) Install git and docker if you want to continue
