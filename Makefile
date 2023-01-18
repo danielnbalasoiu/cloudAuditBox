@@ -2,25 +2,20 @@
 
 default: help
 
-# TODO: Use variables whereever you can (eg. `/home/auditor`, docker cmds, etc)
-
-all: ## 🚀 Build dependencies and start security audits 🔒🔍
+all: ## 🚀 Build dependencies and run all auditing tools 🔒🔍
+	$(info ## 🚀 Build dependencies and start security audits 🔒🔍)
 	@make clean
 	@make build-n-run
 	@echo "\n\n==> 🚀 Starting security audits 🔒🔍"
 	@make audit
 
-audit: ## 🛡️ Audit AWS account with all the tools (Prowler, ScoutSuite, CloudSplaining, PMapper, CloudSploit)
-	@make prowler
-	@make scoutsuite
-	@make cloudsplaining
-	@make pmapper
-	@make cloudsploit
-	@make gather-results
+##@ Deps
 
+.PHONY: install-deps
 install-deps:	## ❌ (out of scope) Install git and docker if you want to continue
 	@echo "git & docker installation are out of scope. You should install them if you want to continue"
 
+# ##@ Build
 build-n-run: ## 🛠️ 🐳 Build and start the containers
 	@echo "\n\n==> 🛠️ Building auditBox container..."
 	@make build-auditbox
@@ -29,12 +24,14 @@ build-n-run: ## 🛠️ 🐳 Build and start the containers
 	@make run
 
 ## 🛠️ Build auditbox container using Kali Linux rolling as base image
+.PHONY: build-auditbox
 build-auditbox:
 	@docker pull kalilinux/kali-rolling
 	@mkdir -p ./auditbox-results ./logs
 	@docker build --no-cache --progress=plain -t kali:auditing . 2>&1 | tee ./logs/dockerbuild-auditbox.log
 
 ## 🛠️ Pull latest code from GitHub and build pmapper container
+.PHONY: build-pmapper
 build-pmapper:
 	@rm -rf arsenal/pmapper
 	@git submodule add --force --name pmapper -- https://github.com/nccgroup/PMapper arsenal/pmapper
@@ -42,6 +39,7 @@ build-pmapper:
 		docker build --no-cache --progress=plain -t pmapper . 2>&1 | tee ../../logs/dockerbuild-pmapper.log
 
 ## 🛠️ Pull latest code from GitHub and build pmapper container
+.PHONY: build-cloudsploit
 build-cloudsploit:
 	@rm -rf arsenal/cloudsploit
 	@git submodule add --force --name cloudsploit -- https://github.com/aquasecurity/cloudsploit arsenal/cloudsploit
@@ -49,7 +47,9 @@ build-cloudsploit:
 		patch Dockerfile < ../cloudsploitDockerfile.patch 		&& \
 		docker build --no-cache --progress=plain -t cloudsploit . 2>&1 | tee ../../logs/dockerbuild-cloudsploit.log
 
-run: ## 🐳 Start auditbox, cloudsploit & pmapper containers
+# ##@ Run containers
+run:
+	@(info ## 🐳 Start auditbox, cloudsploit & pmapper containers)
 	@make run-auditbox
 	@make run-cloudsploit
 	@make run-pmapper
@@ -63,6 +63,17 @@ run-cloudsploit:
 
 run-pmapper:
 	@docker run --env-file=./env.list --rm -d --name pmapper pmapper bash -c "sleep infinity & wait"
+
+
+##@ Audit
+audit: ## 🔥 Fire up all auditing tools (Prowler, ScoutSuite, CloudSplaining, PMapper, CloudSploit)
+	@(info ## 🛡️ Audit AWS account with all the tools (Prowler, ScoutSuite, CloudSplaining, PMapper, CloudSploit))
+	@make prowler
+	@make scoutsuite
+	@make cloudsplaining
+	@make pmapper
+	@make cloudsploit
+	@make gather-results
 
 cloudsplaining: ## 🔍 Audit AWS account with CloudSplaining
 	@echo "\n\n==> 🔍 CloudSplaining scan has started."
@@ -101,14 +112,24 @@ gather-results: ## 💾 Copy all scan results locally in auditbox-results direct
 	@docker exec cloudsploit /bin/sh -c 'tar -cf - /cloudsploit-*' | tar xvf - --directory=./auditbox-results/cloudsploit/	|| true
 	@docker cp auditbox:/home/auditor/tools/prowler/output ./auditbox-results/prowler-v2																		|| true
 
+##@ Cleanup
+
+.PHONY: clean
 clean: ## 🧹 Delete scan results, stop and delete containers
 	@echo "Cleaning has started..."
 	@docker stop auditbox pmapper cloudsploit 2>/dev/null 					|| true
 	@docker rm auditbox pmapper cloudsploit 2>/dev/null 						|| true
 	@docker rmi -f kali:auditing pmapper cloudsploit 2>/dev/null 	|| true
 
+##@ Helpers
+
 .PHONY: help
-help: ## ❔ Display this help screen
-		@grep -E '^[0-9a-zA-Z_-]+:.*?## .*$$' $(firstword $(MAKEFILE_LIST)) | \
-			sort | \
-			awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+# Simple help menu
+# help: ## ❔ Display this help menu
+# 		@grep -E '^[0-9a-zA-Z_-]+:.*?## .*$$' $(firstword $(MAKEFILE_LIST)) | \
+# 			sort | \
+# 			awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+# Advanced help menu grouped by categories
+help:  ## ❔ Display this help menu
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[0-9a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
