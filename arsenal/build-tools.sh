@@ -2,7 +2,7 @@
 
 export USER=auditor
 
-echo "Installing tools..."
+echo -e "\n\n==> Installing tools..."
 
 # This function will install all Python packages defined in the python-tools.txt file
 function pythonTools() {

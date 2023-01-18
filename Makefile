@@ -88,6 +88,7 @@ gather-results: ## 💾 Copy all scan results locally in auditbox-results direct
 	@mkdir -p ./auditbox-results/{pmapper,cloudsploit}/ && \
 		docker exec pmapper /bin/sh -c 'tar -cf - /*.png' | tar xvf - --directory=./auditbox-results/pmapper/								|| true
 	@docker exec cloudsploit /bin/sh -c 'tar -cf - /cloudsploit-*' | tar xvf - --directory=./auditbox-results/cloudsploit/	|| true
+	@docker cp auditbox:/home/auditor/tools/prowler/output ./auditbox-results/prowler-v2																		|| true
 
 clean: ## 🧹 Delete scan results, stop and delete containers
 	@echo "Cleaning has started..."
