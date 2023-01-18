@@ -31,7 +31,6 @@ build-auditbox:
 	@mkdir -p ./auditbox-results ./logs
 	@docker build --no-cache --progress=plain -t kali:auditing . 2>&1 | tee ./logs/dockerbuild-auditbox.log
 
-
 ## 🛠️ Pull latest code from GitHub and build pmapper container
 build-pmapper:
 	@rm -rf arsenal/pmapper
@@ -47,11 +46,20 @@ build-cloudsploit:
 		patch Dockerfile < ../cloudsploitDockerfile.patch 		&& \
 		docker build --no-cache --progress=plain -t cloudsploit . 2>&1 | tee ../../logs/dockerbuild-cloudsploit.log
 
-## 🐳 Start auditbox & pmapper containers
-run:
+run: ## 🐳 Start auditbox, cloudsploit & pmapper containers
+	@make run-auditbox
+	@make run-cloudsploit
+	@make run-pmapper
+
+# Alternatively you can start each container
+run-auditbox:
 	@docker run --env-file=./env.list --rm -d --name auditbox kali:auditing
-	@docker run --env-file=./env.list --rm -d --name pmapper pmapper bash -c "sleep infinity & wait"
+
+run-cloudsploit:
 	@docker run --env-file=./env.list --rm -d --entrypoint sh --name cloudsploit cloudsploit -c "sleep infinity & wait"
+
+run-pmapper:
+	@docker run --env-file=./env.list --rm -d --name pmapper pmapper bash -c "sleep infinity & wait"
 
 cloudsplaining: ## 🔍 Audit AWS account with CloudSplaining
 	@echo "\n\n==> 🔍 CloudSplaining scan has started."
