@@ -2,17 +2,20 @@
 
 default: help
 
+# TODO: Use variables whereever you can (eg. `/home/auditor`, docker cmds, etc)
+
 all: ## 🚀 Build dependencies and start security audits 🔒🔍
 	@make clean
 	@make build-n-run
 	@echo "\n\n==> 🚀 Starting security audits 🔒🔍"
 	@make audit
 
-audit: ## 🛡️ Audit AWS account with all the tools (Prowler, ScoutSuite, CloudSplaining, PMapper)
+audit: ## 🛡️ Audit AWS account with all the tools (Prowler, ScoutSuite, CloudSplaining, PMapper, CloudSploit)
 	@make prowler
 	@make scoutsuite
 	@make cloudsplaining
 	@make pmapper
+	@make cloudsploit
 	@make gather-results
 
 install-deps:	## ❌ (out of scope) Install git and docker if you want to continue
