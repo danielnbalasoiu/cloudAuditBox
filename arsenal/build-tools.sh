@@ -6,9 +6,9 @@ echo -e "\n\n==> Installing tools..."
 
 # This function will install all Python packages defined in the python-tools.txt file
 function pythonTools() {
-	pip install awscli		# Install awscli system wide instead just inside pipenv
+	pip install awscli		# Install awscli system wide instead inside pipenv (python-tools.txt)
 	pipenv install --ignore-pipfile --requirements /tmp/python-tools.txt
-	echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+	pipenv lock --clear		# Clear pipenv cache to reduce container image size
 }
 
 function prowlerV2(){
