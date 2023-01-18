@@ -7,6 +7,7 @@ echo "Installing tools..."
 # This function will install all Python packages defined in the python-tools.txt file
 function pythonTools() {
 	pipenv install --ignore-pipfile --requirements /tmp/python-tools.txt
+	echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 }
 
 # Nothing here yet
