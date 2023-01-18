@@ -1,4 +1,3 @@
-awscli
 detect-secrets
 cloudsplaining
 prowler-cloud

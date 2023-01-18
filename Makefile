@@ -4,46 +4,48 @@ default: help
 
 all: ## 🚀 Build dependencies and start security audits 🔒🔍
 	@make clean
-	@time make build-n-run
-	@echo \n\n ==> 🚀 Starting security audits 🔒🔍
-	@time make audit
+	@make build-n-run
+	@echo "\n\n==> 🚀 Starting security audits 🔒🔍"
+	@make audit
 
 audit: ## 🛡️ Audit AWS account with all the tools (Prowler, ScoutSuite, CloudSplaining, PMapper)
-	@time make prowler
-	@time make scoutsuite
-	@time make cloudsplaining
-	@time make pmapper
+	@make prowler
+	@make scoutsuite
+	@make cloudsplaining
+	@make pmapper
 	@make gather-results
 
 install-deps:	## ❌ (out of scope) Install git and docker if you want to continue
 	@echo "git & docker installation are out of scope. You should install them if you want to continue"
 
 build-n-run: ## 🛠️ 🐳 Build and start the containers
-	@echo \n\n==> 🛠️ Building auditBox container..."
-	@time make build-auditbox
-	@echo \n\n==> 🛠️ Building pmapper container..."
-	@time make build-pmapper
+	@echo "\n\n==> 🛠️ Building auditBox container..."
+	@make build-auditbox
+	@echo "\n\n==> 🛠️ Building pmapper container..."
+	@make build-pmapper
 	@make run
 
 ## 🛠️ Build auditbox container using Kali Linux rolling as base image
 build-auditbox:
 	@docker pull kalilinux/kali-rolling
 	@mkdir -p ./auditbox-results ./logs
-	@time docker build --no-cache --progress=plain -t kali:auditing . 2>&1 | tee ./logs/dockerbuild-auditbox.log
+	@docker build --no-cache --progress=plain -t kali:auditing . 2>&1 | tee ./logs/dockerbuild-auditbox.log
 
 
 ## 🛠️ Pull latest code from GitHub and build pmapper container
 build-pmapper:
+	@rm -rf arsenal/pmapper
 	@git submodule add --force --name pmapper -- https://github.com/nccgroup/PMapper arsenal/pmapper
 	@pushd arsenal/pmapper && \
-		time docker build --no-cache --progress=plain -t pmapper . 2>&1 | tee ../../logs/dockerbuild-pmapper.log
+		docker build --no-cache --progress=plain -t pmapper . 2>&1 | tee ../../logs/dockerbuild-pmapper.log
 
 ## 🛠️ Pull latest code from GitHub and build pmapper container
 build-cloudsploit:
+	@rm -rf arsenal/cloudsploit
 	@git submodule add --force --name cloudsploit -- https://github.com/aquasecurity/cloudsploit arsenal/cloudsploit
 	@pushd arsenal/cloudsploit 														&& \
 		patch Dockerfile < ../cloudsploitDockerfile.patch 		&& \
-		time docker build --no-cache --progress=plain -t cloudsploit . 2>&1 | tee ../../logs/dockerbuild-cloudsploit.log
+		docker build --no-cache --progress=plain -t cloudsploit . 2>&1 | tee ../../logs/dockerbuild-cloudsploit.log
 
 ## 🐳 Start auditbox & pmapper containers
 run:
@@ -66,13 +68,17 @@ prowler: ## 🔍 Audit AWS account with Prowler
 	@echo "\n\n==> 🔍 Prowler scan has started."
 	@docker exec -it auditbox bash -c "pipenv run prowler aws --no-banner --output-modes {csv,json,json-asff,html} --compliance cis_1.5_aws"
 
+prowler-v2: ## 🔍 Audit AWS account with Prowler v2
+	@echo "\n\n==> 🔍 Prowler v2 scan has started."
+	@docker exec -it auditbox bash -c "~/tools/prowler/prowler -g cislevel1 -M csv,json-assf,html"
+
 scoutsuite: ## 🔍 Audit AWS account with ScoutSuite
 	@echo "\n\n==> 🔍 ScoutSuite scan has started."
 	@docker exec -it auditbox bash -c "pipenv run scout aws --report-name scoutsuite --result-format json"
 
 cloudsploit: ## 🔍 Audit AWS account with CloudSploit
-	@echo "\n\n==> 🔍 CloudSploit scan has started."
-	@time docker exec -it cloudsploit cloudsploit-scan --compliance=cis1 --ignore-ok --collection=cloudsploit-collection.json --console=table --csv=cloudsploit-findings.csv --json cloudsploit-findings.json
+	@echo "\n\n ==> 🔍 CloudSploit scan has started."
+	@docker exec -it cloudsploit cloudsploit-scan --compliance=cis1 --ignore-ok --collection=cloudsploit-collection.json --console=table --csv=cloudsploit-findings.csv --json cloudsploit-findings.json
 
 gather-results: ## 💾 Copy all scan results locally in auditbox-results directory
 	@rm -rf auditbox-results && mkdir auditbox-results
