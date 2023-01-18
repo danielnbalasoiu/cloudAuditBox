@@ -72,7 +72,7 @@ pmapper: ## 🔍 Evaluate IAM permissions in AWS
 	@docker exec -it pmapper bash -c "pmapper graph create"
 	@docker exec -it pmapper bash -c "pmapper visualize --only-privesc --filetype png"
 
-prowler: ## 🔍 Audit AWS account with Prowler
+prowler: ## 🔍 Audit AWS account with Prowler v3
 	@echo "\n\n==> 🔍 Prowler scan has started."
 	@docker exec -it auditbox bash -c "pipenv run prowler aws --no-banner --output-modes {csv,json,json-asff,html} --compliance cis_1.5_aws"
 
@@ -106,6 +106,6 @@ clean: ## 🧹 Delete scan results, stop and delete containers
 
 .PHONY: help
 help: ## ❔ Display this help screen
-		@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(firstword $(MAKEFILE_LIST)) | \
+		@grep -E '^[0-9a-zA-Z_-]+:.*?## .*$$' $(firstword $(MAKEFILE_LIST)) | \
 			sort | \
 			awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
