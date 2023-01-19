@@ -120,23 +120,9 @@ clean: ## 🧹 Delete scan results, stop and delete containers
 	@make stop
 	@docker rmi -f kali:auditing pmapper cloudsploit 2>/dev/null 	|| true
 
-## @Debug
+##@ Debug
 
-# TODO: Use variables whereever you can (eg. `/home/auditor`, docker cmds, etc)
-# https://makefiletutorial.com/
-
-DOCKER := $(shell command -v docker 2> /dev/null)
-DOCKER_EXEC := $(shell echo ${DOCKER} exec -it) 		# OK
-# DOCKER_EXEC := $( $$(DOCKER) exec -it)
-
-# ENV_VAR := $(shell echo $${ENV_VAR-development}) # NOTE: double $ for escaping
-
-DOCKER_RUN := $(shell command -v docker run -it)
-
-dexec: ## (Debug) Docker exec into auditbox
-	@$(DOCKER_EXEC) auditbox bash -c "w"
-
-restart:
+restart:	## 🔄 Restart all containers
 	@make restart-auditbox
 	@make restart-pmapper
 	@make restart-cloudsploit
@@ -172,6 +158,20 @@ stop-pmapper:
 
 stop-cloudsploit:
 	@docker stop cloudsploit
+
+# TODO: Use variables whereever you can (eg. `/home/auditor`, docker cmds, etc)
+# https://makefiletutorial.com/
+
+DOCKER := $(shell command -v docker 2> /dev/null)
+DOCKER_EXEC := $(shell echo ${DOCKER} exec -it) 		# OK
+# DOCKER_EXEC := $( $$(DOCKER) exec -it)
+
+# ENV_VAR := $(shell echo $${ENV_VAR-development}) # NOTE: double $ for escaping
+
+DOCKER_RUN := $(shell command -v docker run -it)
+
+dexec: ## (Debug) Docker exec into auditbox
+	@$(DOCKER_EXEC) auditbox bash -c "w"
 
 ##@ Helpers
 
