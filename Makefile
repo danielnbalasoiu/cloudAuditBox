@@ -9,23 +9,6 @@ all: ## 🚀 Build dependencies and run all auditing tools 🔒🔍
 	@echo "\n\n==> 🚀 Starting security audits 🔒🔍"
 	@make audit
 
-## @Debug
-
-# TODO: Use variables whereever you can (eg. `/home/auditor`, docker cmds, etc)
-# https://makefiletutorial.com/
-
-DOCKER := $(shell command -v docker 2> /dev/null)
-DOCKER_EXEC := $(shell echo ${DOCKER} exec -it) 		# OK
-# DOCKER_EXEC := $( $$(DOCKER) exec -it)
-
-# ENV_VAR := $(shell echo $${ENV_VAR-development}) # NOTE: double $ for escaping
-
-DOCKER_RUN := $(shell command -v docker run -it)
-# DOCKER_EXEC := $(shell command -v docker exec -it)
-
-# z_dexec: ## foo
-# 	@$(DOCKER_EXEC) auditbox bash -c "w"
-
 ##@ Deps
 
 .PHONY: install-deps
@@ -139,6 +122,20 @@ clean: ## 🧹 Delete scan results, stop and delete containers
 
 ## @Debug
 
+# TODO: Use variables whereever you can (eg. `/home/auditor`, docker cmds, etc)
+# https://makefiletutorial.com/
+
+DOCKER := $(shell command -v docker 2> /dev/null)
+DOCKER_EXEC := $(shell echo ${DOCKER} exec -it) 		# OK
+# DOCKER_EXEC := $( $$(DOCKER) exec -it)
+
+# ENV_VAR := $(shell echo $${ENV_VAR-development}) # NOTE: double $ for escaping
+
+DOCKER_RUN := $(shell command -v docker run -it)
+
+dexec: ## (Debug) Docker exec into auditbox
+	@$(DOCKER_EXEC) auditbox bash -c "w"
+
 restart:
 	@make restart-auditbox
 	@make restart-pmapper
@@ -163,8 +160,8 @@ restart-cloudsploit:
 	@echo "==> ✅ Completed"
 
 stop:
-	@make stop-auditbox 2>/dev/null 			|| true
-	@make stop-pmapper 2>/dev/null 			|| true
+	@make stop-auditbox 2>/dev/null				|| true
+	@make stop-pmapper 2>/dev/null 			  || true
 	@make stop-cloudsploit 2>/dev/null 		|| true
 
 stop-auditbox:
