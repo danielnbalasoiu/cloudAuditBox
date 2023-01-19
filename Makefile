@@ -56,13 +56,13 @@ run:
 
 # Alternatively you can start each container
 run-auditbox:
-	@docker run --hostname auditbox --env-file=./env.list --rm -d --name auditbox kali:auditing
+	@docker run --hostname auditbox --env-file=./env.list -d --name auditbox kali:auditing
 
 run-cloudsploit:
-	@docker run --env-file=./env.list --rm -d --entrypoint sh --name cloudsploit cloudsploit -c "sleep infinity & wait"
+	@docker run --env-file=./env.list -d --entrypoint sh --name cloudsploit cloudsploit -c "sleep infinity & wait"
 
 run-pmapper:
-	@docker run --env-file=./env.list --rm -d --name pmapper pmapper bash -c "sleep infinity & wait"
+	@docker run --env-file=./env.list -d --name pmapper pmapper bash -c "sleep infinity & wait"
 
 
 ##@ Audit
