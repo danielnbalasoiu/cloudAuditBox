@@ -3,14 +3,13 @@ FROM kalilinux/kali-rolling
 COPY ./arsenal/xtra-tools.txt /tmp/
 
 # If you want to install other tools, add them in the tools/xtra-tools.txt file
-RUN useradd -ms /bin/bash auditor													&& \
-		echo "auditbox" > /etc/hostname												&& \
-		apt update																						&& \
-		apt autoremove																				&& \
-		apt install -y $(cat /tmp/xtra-tools.txt | xargs)			&& \
+RUN useradd -ms /bin/bash auditor												&& \
+		echo "auditbox" > /etc/hostname											&& \
+		apt update																					&& \
+		apt upgrade -y																			&& \
+		apt autoremove																			&& \
+		apt install -y $(cat /tmp/xtra-tools.txt | xargs)		&& \
 		pip install pipenv
-
-# 		apt upgrade -y																				&& \
 
 WORKDIR /home/auditor
 
