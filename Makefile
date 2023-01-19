@@ -32,14 +32,14 @@ build-n-run: ## 🛠️ 🐳 Build and start the containers
 build-auditbox:
 	@docker pull kalilinux/kali-rolling
 	@mkdir -p ./auditbox-results ./logs
-	@docker build --no-cache --progress=plain -t kali:auditing . 2>&1 | tee ./logs/dockerbuild-auditbox.log
+	@docker build --no-cache --progress=plain --tag kali:auditing . 2>&1 | tee ./logs/dockerbuild-auditbox.log
 
 ## 🛠️ Pull latest code from GitHub and build pmapper container
 build-pmapper:
 	@rm -rf arsenal/pmapper
 	@git submodule add --force --name pmapper -- https://github.com/nccgroup/PMapper arsenal/pmapper
 	@pushd arsenal/pmapper && \
-		docker build --no-cache --progress=plain -t pmapper . 2>&1 | tee ../../logs/dockerbuild-pmapper.log
+		docker build --no-cache --progress=plain --tag pmapper . 2>&1 | tee ../../logs/dockerbuild-pmapper.log
 
 ## 🛠️ Pull latest code from GitHub and build pmapper container
 build-cloudsploit:
@@ -47,16 +47,16 @@ build-cloudsploit:
 	@git submodule add --force --name cloudsploit -- https://github.com/aquasecurity/cloudsploit arsenal/cloudsploit
 	@pushd arsenal/cloudsploit 														&& \
 		patch Dockerfile < ../cloudsploitDockerfile.patch 		&& \
-		docker build --no-cache --progress=plain -t cloudsploit . 2>&1 | tee ../../logs/dockerbuild-cloudsploit.log
+		docker build --no-cache --progress=plain --tag cloudsploit . 2>&1 | tee ../../logs/dockerbuild-cloudsploit.log
 
 run: ## 🐳 Start auditbox, cloudsploit & pmapper containers
-	@make run-auditbox
-	@make run-cloudsploit
-	@make run-pmapper
+	@make run-auditbox			|| true
+	@make run-cloudsploit		|| true
+	@make run-pmapper				|| true
 
 # Alternatively you can start each container
 run-auditbox:
-	@docker run --env-file=./env.list --rm -d --name auditbox kali:auditing
+	@docker run --hostname auditbox --env-file=./env.list --rm -d --name auditbox kali:auditing
 
 run-cloudsploit:
 	@docker run --env-file=./env.list --rm -d --entrypoint sh --name cloudsploit cloudsploit -c "sleep infinity & wait"
@@ -101,10 +101,49 @@ gather-results: ## 💾 Copy all scan results locally in auditbox-results direct
 	@docker exec cloudsploit /bin/sh -c 'tar -cf - /cloudsploit-*' | tar xvf - --directory=./auditbox-results/cloudsploit/	|| true
 	@docker cp auditbox:/home/auditor/tools/prowler/output ./auditbox-results/prowler-v2																		|| true
 
+## @Debug
+
+restart:
+	@make restart-auditbox
+	@make restart-pmapper
+	@make restart-cloudsploit
+
+restart-auditbox:
+	@echo "\n==> 🔄 Restarting auditbox container"
+	@make stop-auditbox
+	@make run-auditbox
+	@echo "==> ✅ Completed"
+
+restart-pmapper:
+	@echo "\n==> 🔄 Restarting pmapper container"
+	@make stop-pmapper
+	@make run-pmapper
+	@echo "==> ✅ Completed"
+
+restart-cloudsploit:
+	@echo "\n==> 🔄 Restarting cloudsploit container"
+	@make stop-cloudsploit
+	@make run-cloudsploit
+	@echo "==> ✅ Completed"
+
+stop:
+	@make stop-auditbox 2>/dev/null 			|| true
+	@make stop-pmapper 2>/dev/null 			|| true
+	@make stop-cloudsploit 2>/dev/null 		|| true
+
+stop-auditbox:
+	@docker stop auditbox
+
+stop-pmapper:
+	@docker stop pmapper
+
+stop-cloudsploit:
+	@docker stop cloudsploit
+
 clean: ## 🧹 Delete scan results, stop and delete containers
-	@echo "Cleaning has started..."
-	@docker stop auditbox pmapper cloudsploit 2>/dev/null 					|| true
-	@docker rm auditbox pmapper cloudsploit 2>/dev/null 						|| true
+	@echo "🧹 Cleaning has started..."
+	@make stop
+# 	@docker rm auditbox pmapper cloudsploit 2>/dev/null 						|| true
 	@docker rmi -f kali:auditing pmapper cloudsploit 2>/dev/null 	|| true
 
 .PHONY: help
