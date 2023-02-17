@@ -37,19 +37,35 @@ make all
 ### Help
 
 ```shell
-❯ make help
-all                            🚀 Build dependencies and start security audits 🔒🔍
-audit                          🛡️ Audit AWS account with all the tools (Prowler, ScoutSuite, CloudSplaining, PMapper)
-build-n-run                    🛠️ 🐳 Build and start the containers
-clean                          🧹 Delete scan results, stop and delete containers
-cloudsplaining                 🔍 Audit AWS account with CloudSplaining
-cloudsploit                    🔍 Audit AWS account with CloudSploit
-gather-results                 💾 Copy all scan results locally in auditbox-results directory
-help                           ❔ Display this help screen
-install-deps                   ❌ (out of scope) Install git and docker if you want to continue
-pmapper                        🔍 Evaluate IAM permissions in AWS
-prowler                        🔍 Audit AWS account with Prowler
-scoutsuite                     🔍 Audit AWS account with ScoutSuite
+❯ make
+
+Usage:
+make <target>
+  all              🚀 Build dependencies and run all auditing tools 🔒🔍
+
+Deps
+install-deps     ❌ (out of scope) Install git and docker if you want to continue
+build-n-run      🛠️ 🐳 Build and start the containers
+
+Audit
+audit            🔥 Fire up all auditing tools (Prowler, ScoutSuite, CloudSplaining, PMapper, CloudSploit)
+cloudsplaining   🔍 Audit AWS account with CloudSplaining
+pmapper          🔍 Evaluate IAM permissions in AWS
+prowler          🔍 Audit AWS account with Prowler v3
+prowler-v2       🔍 Audit AWS account with Prowler v2
+scoutsuite       🔍 Audit AWS account with ScoutSuite
+cloudsploit      🔍 Audit AWS account with CloudSploit
+gather-results   💾 Copy all scan results locally in auditbox-results directory
+
+Cleanup
+clean            🧹 Delete scan results, stop and delete containers
+
+Debug
+restart          🔄 Restart all containers
+dexec            (Debug) Docker exec into auditbox
+
+Helpers
+help             ❔ Display this help menu
 ```
 
 
