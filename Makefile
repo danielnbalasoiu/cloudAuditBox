@@ -19,6 +19,8 @@ install-deps:	## ❌ (out of scope) Install git and docker if you want to contin
 build-n-run: ## 🛠️ 🐳 Build and start the containers
 	@echo "\n\n==> 🛠️ Building auditBox container..."
 	@make build-auditbox
+	@echo "\n\n==> 🛠️ Building CloudSploit container..."
+	@make build-cloudsploit
 	@echo "\n\n==> 🛠️ Building pmapper container..."
 	@make build-pmapper
 	@make run
@@ -38,7 +40,7 @@ build-pmapper:
 	@pushd arsenal/pmapper && \
 		docker build --no-cache --progress=plain --tag pmapper . 2>&1 | tee ../../logs/dockerbuild-pmapper.log
 
-## 🛠️ Pull latest code from GitHub and build pmapper container
+## 🛠️ Pull latest code from GitHub and build CloudSploit container
 .PHONY: build-cloudsploit
 build-cloudsploit:
 	@rm -rf arsenal/cloudsploit
@@ -56,14 +58,16 @@ run:
 
 # Alternatively you can start each container
 run-auditbox:
-	@docker run --hostname auditbox --env-file=./env.list -d --name auditbox kali:auditing
+	@docker rm -f auditbox && \
+		docker run --hostname auditbox --env-file=./env.list -d --name auditbox kali:auditing
 
 run-cloudsploit:
-	@docker run --env-file=./env.list -d --entrypoint sh --name cloudsploit cloudsploit -c "sleep infinity & wait"
+	@docker rm -f cloudsploit && \
+		docker run --env-file=./env.list -d --entrypoint sh --name cloudsploit cloudsploit -c "sleep infinity & wait"
 
 run-pmapper:
-	@docker run --env-file=./env.list -d --name pmapper pmapper bash -c "sleep infinity & wait"
-
+	@docker rm -f pmapper && \
+		docker run --env-file=./env.list -d --name pmapper pmapper bash -c "sleep infinity & wait"
 
 ##@ Audit
 audit: ## 🔥 Fire up all auditing tools (Prowler, ScoutSuite, CloudSplaining, PMapper, CloudSploit)
@@ -82,6 +86,9 @@ cloudsplaining: ## 🔍 Audit AWS account with CloudSplaining
 		pipenv run cloudsplaining scan --input-file /home/auditor/default.json --output cloudsplaining"
 
 pmapper: ## 🔍 Evaluate IAM permissions in AWS
+	# TODO: Check & do not force start it if the container is already running
+	@echo "\n\n==> 🚀 Starting the container..."
+	@make run-pmapper
 	@echo "\n\n==> 🔍 Evaluating IAM permissions with PMapper"
 	@docker exec -it pmapper bash -c "pmapper graph create"
 	@docker exec -it pmapper bash -c "pmapper visualize --only-privesc --filetype png"
